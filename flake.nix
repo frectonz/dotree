@@ -28,7 +28,13 @@
         lib = nixpkgs.lib;
         craneLib = crane.lib.${system};
 
+        pestFilter = path: builtins.match ".*pest$" path != null;
+        bashTestsFilter = path: builtins.match "tests/bash_tests/*" path != null;
+        filter = path: type:
+          (bashTestsFilter path) || (pestFilter path) || (craneLib.filterCargoSources path type);
+
         src = lib.cleanSourceWith {
+          inherit filter;
           src = craneLib.path ./.;
         };
 
